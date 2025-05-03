@@ -103,7 +103,7 @@ charger_HighVoltageAlarm = 0
 
 
 # MQTT requests
-def on_disconnect(client, userdata, rc):
+def on_disconnect(client, userdata, flags, rc, properties):
     global connected
     logging.warning("MQTT client: Got disconnected")
     if rc != 0:
@@ -127,7 +127,7 @@ def on_disconnect(client, userdata, rc):
             sleep(15)
 
 
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, properties):
     global connected
     if rc == 0:
         logging.info("MQTT client: Connected to MQTT broker!")
@@ -364,10 +364,10 @@ class DbusMqttAcChargerService:
                     round(charger_DC0_current, 2) if charger_DC0_current is not None else None
                 )
                 self._dbusservice["/Dc/0/Voltage"] = (
-                    round(charger_DC0_voltage, 2) if charger_DC0_voltage is not 0 else None
+                    round(charger_DC0_voltage, 2) if charger_DC0_voltage != 0 else None
                 )
                 self._dbusservice["/Dc/0/Temperature"] = (
-                    round(charger_DC0_temperature, 2) if charger_DC0_temperature is not 0 else None
+                    round(charger_DC0_temperature, 2) if charger_DC0_temperature != 0 else None
                 )
                 
             if charger_DC1_current is not None:
@@ -375,10 +375,10 @@ class DbusMqttAcChargerService:
                     round(charger_DC1_current, 2) if charger_DC1_current is not None else None
                 )
                 self._dbusservice["/Dc/1/Voltage"] = (
-                    round(charger_DC1_voltage, 2) if charger_DC1_voltage is not 0 else None
+                    round(charger_DC1_voltage, 2) if charger_DC1_voltage != 0 else None
                 )
                 self._dbusservice["/Dc/1/Temperature"] = (
-                    round(charger_DC1_temperature, 2) if charger_DC1_temperature is not 0 else None
+                    round(charger_DC1_temperature, 2) if charger_DC1_temperature != 0 else None
                 )
                 
             if charger_DC2_current is not None:
@@ -386,10 +386,10 @@ class DbusMqttAcChargerService:
                     round(charger_DC2_current, 2) if charger_DC2_current is not None else None
                 )
                 self._dbusservice["/Dc/2/Voltage"] = (
-                    round(charger_DC2_voltage, 2) if charger_DC2_voltage is not 0 else None
+                    round(charger_DC2_voltage, 2) if charger_DC2_voltage != 0 else None
                 )
                 self._dbusservice["/Dc/2/Temperature"] = (
-                    round(charger_DC2_temperature, 2) if charger_DC2_temperature is not 0 else None
+                    round(charger_DC2_temperature, 2) if charger_DC2_temperature != 0 else None
                 )                
 
 
@@ -446,7 +446,7 @@ def main():
     DBusGMainLoop(set_as_default=True)
 
     # MQTT setup
-    client = mqtt.Client("MqttACcharger_" + str(config["MQTT"]["device_instance"]))
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2,"MqttACcharger_" + str(config["MQTT"]["device_instance"]))
     client.on_disconnect = on_disconnect
     client.on_connect = on_connect
     client.on_message = on_message
